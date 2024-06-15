@@ -1,0 +1,27 @@
+services:
+  rabbitmq:
+    image: 'rabbitmq'
+    restart: always
+    networks:
+      - app_network
+  backend:
+    build:
+      context: .
+      target: dev
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - 4000:4000
+    command: npm run dev
+    volumes:
+      - ./:/app
+      - /app/node_modules
+    depends_on:
+      - rabbitmq
+    networks:
+      - app_network
+
+networks:
+  app_network:
+    driver: bridge
