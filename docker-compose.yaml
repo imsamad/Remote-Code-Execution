@@ -4,9 +4,16 @@ services:
     restart: always
     networks:
       - app_network
+
+  redis:
+    image: 'redis'
+    restart: always
+    networks:
+      - app_network
+
   backend:
     build:
-      context: .
+      context: ./server
       target: dev
     restart: unless-stopped
     env_file:
@@ -15,10 +22,30 @@ services:
       - 4000:4000
     command: npm run dev
     volumes:
-      - ./:/app
+      - ./server:/app
       - /app/node_modules
     depends_on:
       - rabbitmq
+      - redis
+    networks:
+      - app_network
+
+  worker:
+    pids_limit: 100 # Max number of processes running in the container. Tackle fork bomb
+    # cpus: 1 # No of CPUs allocated, tackle infinte loop and infinite recursive function
+    # mem_limit: 150M # Hard limit, tackle inifite loop, recursion without exit conditon, forkbomb
+    build:
+      context: ./worker
+    restart: unless-stopped
+    env_file:
+      - .env
+    command: npm run dev
+    volumes:
+      - ./worker:/app
+      - /app/node_modules
+    depends_on:
+      - rabbitmq
+      - redis
     networks:
       - app_network
 
