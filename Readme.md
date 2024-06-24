@@ -55,3 +55,4 @@ Server would be up and listening on port 4000.
 - Error Handling - [in server]
 - Handle File-system-tampering code - [in worker]
 - Handle process alterating code - [in worker]
+- Multiple queues with variable priority
